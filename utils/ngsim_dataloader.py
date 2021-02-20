@@ -9,6 +9,7 @@ class ngsimDataset(Dataset):
     def __init__(self, mat_file, t_h=30, t_f=50, d_s=2, enc_size=64, grid_size=(13, 3)):
         self.D = scp.loadmat(mat_file)['traj']
         self.T = scp.loadmat(mat_file)['tracks']
+        self.D = self.D[self.D[:, 2] % 25 == 0] # Remove this line if needed
         self.t_h = t_h  # length of track history
         self.t_f = t_f  # length of predicted trajectory
         self.d_s = d_s  # down sampling rate of all sequences
@@ -113,5 +114,5 @@ class ngsimDataset(Dataset):
                     pos[1] = id // self.grid_size[0]
                     mask_batch[sampleId, pos[1], pos[0], :] = torch.ones(self.enc_size).byte()
                     count += 1
-
+        mask_batch = mask_batch.bool()
         return hist_batch, nbrs_batch, mask_batch, lat_enc_batch, lon_enc_batch, fut_batch, op_mask_batch
